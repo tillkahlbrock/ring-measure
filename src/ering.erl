@@ -24,10 +24,12 @@ build_ring(NumProcesses, Master) ->
 receive_loop_master(Successor) ->
   receive
     kill -> Successor ! kill, io:format("I am dying... hardly....~n", []);
-	{first, Command} -> Successor ! Command;
+	{first, Command} ->
+	  Successor ! Command,
+      receive_loop_master(Successor);
     Command ->
       io:format("Got: ~p~n", [Command]),
-      receive_loop(Successor)
+      receive_loop_master(Successor)
   end.
 
 receive_loop(Successor) ->
