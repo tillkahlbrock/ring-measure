@@ -11,7 +11,7 @@ start(NumProcesses) ->
 measure(MasterPid, Roundtrips) -> measure(MasterPid, Roundtrips, []).
 
 measure(_MasterPid, 0, Result) ->
-  io:format("Result: ~p~n", [Result]);
+  io:format("Result: ~p~n", [lists:reverse(Result)]);
 
 measure(MasterPid, Roundtrips, Result) ->
   NewResult = start_roundtrip(MasterPid),
@@ -47,7 +47,6 @@ receive_loop_master(Successor, State = #state{controller = ControllerPid}) ->
       receive_loop_master(Successor, State#state{startTime = NewStartTime, controller = ControllerPid2});
     measure ->
       EndTime = os:timestamp(),
-      io:format("Got: ~p~n", [measure]),
       NewState = State#state{endTime = EndTime},
       ControllerPid ! {ok, NewState},
       receive_loop_master(Successor, NewState)
@@ -58,6 +57,5 @@ receive_loop(Successor) ->
     kill -> Successor ! kill, io:format("I am dying... hardly....~n", []);
     Command ->
       Successor ! Command,
-      io:format("Sent: ~p~n", [Command]),
       receive_loop(Successor)
   end.
