@@ -1,8 +1,10 @@
 -module(ering).
-
--export([start/1, measure/2]).
-
+-export([start/1, start_measure/2, measure/2]).
 -record(state, {controller, startTime, endTime}).
+
+start_measure(NumProcesses, Roundtrips) ->
+  MasterPid = start(NumProcesses),
+  measure(MasterPid, Roundtrips).
 
 start(NumProcesses) ->
   MasterPid = spawn(fun() -> build_ring_master(NumProcesses, self()) end),
