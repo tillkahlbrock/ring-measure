@@ -42,11 +42,11 @@ receive_loop_master(Successor, State = #state{controller = ControllerPid}) ->
       Successor ! kill,
       io:format("I am dying... hardly....~n", []);
 	{ControllerPid2, measure} ->
-      NewStartTime = 1,
+      NewStartTime = os:timestamp(),
 	  Successor ! measure,
       receive_loop_master(Successor, State#state{startTime = NewStartTime, controller = ControllerPid2});
     measure ->
-      EndTime = 5,
+      EndTime = os:timestamp(),
       io:format("Got: ~p~n", [measure]),
       NewState = State#state{endTime = EndTime},
       ControllerPid ! {ok, NewState},
