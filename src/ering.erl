@@ -36,26 +36,26 @@ build_ring(NumProcesses, Master) ->
   Successor = spawn(fun() -> build_ring(NumProcesses - 1, Master) end),
   receive_loop(Successor).
 
-receive_loop_master(Successor, State = #state{controller = ControllerPid}) ->
+receive_loop_master(Successor, State) ->
   receive
     kill ->
       Successor ! kill,
       io:format("I am dying... hardly....~n", []);
-	{ControllerPid2, measure} ->
+	{ControllerPid, measure} ->
       NewStartTime = os:timestamp(),
 	  Successor ! measure,
-      receive_loop_master(Successor, State#state{startTime = NewStartTime, controller = ControllerPid2});
+      receive_loop_master(Successor, State#state{startTime = NewStartTime, controller = ControllerPid});
     measure ->
       EndTime = os:timestamp(),
       NewState = State#state{endTime = EndTime},
-      ControllerPid ! {ok, NewState},
+      State#state.controller ! {ok, NewState},
       receive_loop_master(Successor, NewState)
   end.
 
 receive_loop(Successor) ->
   receive
     kill -> Successor ! kill, io:format("I am dying... hardly....~n", []);
-    Command ->
-      Successor ! Command,
+    measure ->
+      Successor ! measure,
       receive_loop(Successor)
   end.
