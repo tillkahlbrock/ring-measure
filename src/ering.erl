@@ -2,6 +2,9 @@
 -export([start/1, start_measure/2, measure/2]).
 -record(state, {controller, startTime, endTime}).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% API
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 start_measure(NumProcesses, Roundtrips) ->
   MasterPid = start(NumProcesses),
   measure(MasterPid, Roundtrips).
@@ -12,8 +15,7 @@ start(NumProcesses) ->
 
 measure(MasterPid, Roundtrips) -> measure(MasterPid, Roundtrips, []).
 
-measure(_MasterPid, 0, Result) ->
-  io:format("Result: ~p~n", [lists:reverse(Result)]);
+measure(_MasterPid, 0, Result) -> Result;
 
 measure(MasterPid, Roundtrips, Result) ->
   NewResult = start_roundtrip(MasterPid),
@@ -21,6 +23,10 @@ measure(MasterPid, Roundtrips, Result) ->
   EndTime = NewResult#state.endTime,
   measure(MasterPid, Roundtrips - 1, [{StartTime, EndTime}|Result]).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Helper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 start_roundtrip(MasterPid) ->
   MasterPid ! {self(), measure},
   receive
